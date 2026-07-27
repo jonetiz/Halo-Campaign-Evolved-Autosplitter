@@ -56,13 +56,12 @@ state("HaloCampaignEvolved") {
     float       xpos        : "HaloSimulation_tag_release.dll", 0x1A5DC30;
     float       ypos        : "HaloSimulation_tag_release.dll", 0x1A5DC34;
     float       zpos        : "HaloSimulation_tag_release.dll", 0x1A5DC38;
-    long        cutscene    : 0xD5B9C90;                                            // = 4294967295 // 0xFFFFFFFF when in any cutscene
+    byte        cutscene    : "HaloSimulation_tag_release.dll", 0xA2C3C1;           // 0 = cutscene, 1 = gameplay; aligned to 0xA2C3C0
     int         bsp         : "HaloSimulation_tag_release.dll", 0x9A24D8;
 }
 
 startup {
     vars.dirtybsps = new List<int>();
-    vars.cutscene_ticks = new List<int>();
 
     vars.aslName = "CER Auto Splitter";
 	if(timer.CurrentTimingMethod == TimingMethod.RealTime)
@@ -87,32 +86,36 @@ startup {
 
 start {
     vars.dirtybsps.Clear();
-    vars.cutscene_ticks.Clear();
 
-    return current.loadState == 4                               // wait until in game
-        && (current.tick > 3 && current.tick < 30)              // brute force to start timer in the first half second
+    return current.loadState == 4       // wait until in game
+        && current.tick != old.tick     // wait until out of cutscene
+        && current.tick > 3             // wait until out of cutscene
+        && current.cutscene == 1        // wait until out of cutscene
+        && current.tick < 30            // only start in first half second
         ;
 }
 
 reset {
-    return (current.level == "levels\\halo1\\solo\\a15\\a15" && current.tick <= 3);
+    return current.tick < 3;
 }
 
 split {
-    if (settings["il_mode"] && current.tick == old.tick) {
-        if (current.level == "levels\\halo1\\solo\\a15\\a15" && current.cutscene == 0xFFFFFFFF && current.bsp == 3) {
+    if (settings["il_mode"]) {
+        if (current.level == "levels\\halo1\\solo\\a15\\a15" && current.cutscene == 0 && current.bsp == 3) {
             return true;
         }
-        if (current.level == "levels\\halo1\\solo\\a30\\a30" && current.cutscene == 0xFFFFFFFF && current.bsp == 2) {
+        if (current.level == "levels\\halo1\\solo\\a30\\a30" && current.cutscene == 0 && current.bsp == 2) {
             return true;
         }
-        // if (current.level == "levels\\halo1\\solo\\a50\\a50" && current.cutscene == 0xFFFFFFFF && current.bsp == 5) {
+        // if (current.level == "levels\\halo1\\solo\\a50\\a50" && current.cutscene == 0 && current.bsp == 5) {
         //     return true;
         // }
+        if (current.level == "levels\\halo1\\solo\\b30\\b30" && current.cutscene == 0 && current.bsp == 1) {
+            return true;
+        }
     }
 
-    if (settings["cutscene_split"] && current.cutscene == 0xFFFFFFFF && current.tick > 60 && current.tick == old.tick && vars.cutscene_ticks.Contains(current.tick) == false) {
-        vars.cutscene_ticks.Add(current.tick);
+    if (settings["cutscene_split"] && current.cutscene == 0 && current.cutscene != old.cutscene && current.tick > 60) {
         return true;
     }
 
@@ -120,13 +123,12 @@ split {
         vars.dirtybsps.Add(current.bsp);
         return true;
     }
-    if (current.level == "levels\\halo1\\solo\\d40\\d40" && current.bsp == 3 && current.cutscene == 0xFFFFFFFF && current.tick == old.tick) {
+    if (current.level == "levels\\halo1\\solo\\d40\\d40" && current.bsp == 3 && current.cutscene == 0) {
         return true;
     }
 
     if (old.level != current.level) {
         vars.dirtybsps.Clear();
-        vars.cutscene_ticks.Clear();
         return true;
     }
 }
