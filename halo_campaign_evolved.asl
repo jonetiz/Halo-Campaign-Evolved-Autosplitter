@@ -16,7 +16,7 @@ Helper: always increases when in game, count is stuck to 3 in level beginning cu
 */
 
 state("HaloCampaignEvolved", "2026.07.25.1112544.4-Rel-i343-Meteorite-2607-CU3") {
-    int         loadState   : "HaloSimulation_tag_release.dll", 0xCA2864;
+    int         loadState   : "HaloSimulation_tag_release.dll", 0xCA2824;
     string32    level       : "HaloSimulation_tag_release.dll", 0xCA2F00;
     int         tick        : "HaloSimulation_tag_release.dll", 0x12944C8, 0x0;
     byte        cutscene    : "HaloSimulation_tag_release.dll", 0xA2B3B1;           // 0 = cutscene, 1 = gameplay; aligned to 0xA2C3C0
