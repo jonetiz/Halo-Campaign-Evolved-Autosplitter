@@ -20,6 +20,7 @@ state("HaloCampaignEvolved", "2026.07.25.1112544.4-Rel-i343-Meteorite-2607-CU3")
     string32    level       : "HaloSimulation_tag_release.dll", 0xCA2F00;
     int         tick        : "HaloSimulation_tag_release.dll", 0x12944C8, 0x0;
     byte        cutscene    : "HaloSimulation_tag_release.dll", 0xA2B3B1;           // 0 = cutscene, 1 = gameplay; aligned to 0xA2C3C0
+    byte        paused      : 0xD3A5ED8, 0x618;                                     // 0 = unpaused, 1 = paused
     int         bsp         : "HaloSimulation_tag_release.dll", 0x9A14E0;
 }
 
@@ -28,6 +29,7 @@ state("HaloCampaignEvolved", "2026.06.26.1097863.1-Rel-i343-Meteorite-2606-CU2")
     string32    level       : "HaloSimulation_tag_release.dll", 0xCA3F20;
     int         tick        : "HaloSimulation_tag_release.dll", 0x12954A8, 0x0;
     byte        cutscene    : "HaloSimulation_tag_release.dll", 0xA2C3C1;           // 0 = cutscene, 1 = gameplay; aligned to 0xA2C3C0
+    byte        paused      : 0xD3ACED8, 0x618;                                     // 0 = unpaused, 1 = paused
     int         bsp         : "HaloSimulation_tag_release.dll", 0x9A24D8;
 }
 
@@ -522,5 +524,5 @@ split {
 }
 
 isLoading {
-    return current.loadState != 4;
+    return current.loadState != 4 || current.cutscene == 0 || current.paused == 1 || current.tick < 3;
 }
