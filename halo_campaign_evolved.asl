@@ -15,10 +15,6 @@ d40     The Maw                         levels\halo1\solo\d40\d40
 Helper: always increases when in game, count is stuck to 3 in level beginning cutscences
 */
 
-state("HaloCampaignEvolved") {
-
-}
-
 state("HaloCampaignEvolved", "2026.07.25.1112544.4-Rel-i343-Meteorite-2607-CU3") {
     int         loadState   : "HaloSimulation_tag_release.dll", 0xCA2824;
     string32    level       : "HaloSimulation_tag_release.dll", 0xCA2F00;
@@ -78,8 +74,6 @@ init
 
 update
 {
-    print("x: " + current.x + " y: " + current.y + " z: " + current.z);
-
     if (
         (current.level == "levels\\halo1\\solo\\a15\\a15" && current.cutscene == 0 && current.bsp == 3) ||
         (current.level == "levels\\halo1\\solo\\a30\\a30" && current.cutscene == 0 && current.bsp == 2) ||
