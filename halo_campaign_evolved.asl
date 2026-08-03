@@ -19,7 +19,7 @@ state("HaloCampaignEvolved") {
 
 }
 
-state("HaloCampaignEvolved", "2026.07.25-CU3") {
+state("HaloCampaignEvolved", "2026.07.25.1112544.4-Rel-i343-Meteorite-2607-CU3") {
     int         loadState   : "HaloSimulation_tag_release.dll", 0xCA2824;
     string32    level       : "HaloSimulation_tag_release.dll", 0xCA2F00;
     int         tick        : "HaloSimulation_tag_release.dll", 0x12944C8, 0x0;
@@ -31,7 +31,7 @@ state("HaloCampaignEvolved", "2026.07.25-CU3") {
     float       z           : "HaloSimulation_tag_release.dll", 0x1294420, 0x34;
 }
 
-state("HaloCampaignEvolved", "2026.06.26-CU2") {
+state("HaloCampaignEvolved", "2026.06.26.1097863.1-Rel-i343-Meteorite-2606-CU2") {
     int         loadState   : "HaloSimulation_tag_release.dll", 0xCA3844;
     string32    level       : "HaloSimulation_tag_release.dll", 0xCA3F20;
     int         tick        : "HaloSimulation_tag_release.dll", 0x12954A8, 0x0;
@@ -73,36 +73,18 @@ startup {
 
 init
 {
-    string productVersion = modules.First().FileVersionInfo.ProductVersion;
-
-    switch (productVersion)
-    {
-        case "2026.07.25.1112544.4-Rel-i343-Meteorite-2607-CU3":
-            version = "2026.07.25-CU3";
-            break;
-
-        case "2026.06.26.1097863.1-Rel-i343-Meteorite-2606-CU2":
-            version = "2026.06.26-CU2";
-            break;
-
-        default:
-            MessageBox.Show(
-                "The current game version (" + productVersion + ") is not supported at this time. "+
-                "It is highly unlikely that this autosplitter will work correctly. "+
-                "Please wait for an update to the autosplitter or revert to a supported version of the game."+
-                vars.aslName + " | LiveSplit"
-            );
-            return false;
-    }
+    version = modules.First().FileVersionInfo.ProductVersion;
 }
 
 update
 {
+    print("x: " + current.x + " y: " + current.y + " z: " + current.z);
+
     if (
         (current.level == "levels\\halo1\\solo\\a15\\a15" && current.cutscene == 0 && current.bsp == 3) ||
         (current.level == "levels\\halo1\\solo\\a30\\a30" && current.cutscene == 0 && current.bsp == 2) ||
         (current.level == "levels\\halo1\\solo\\a30\\a30" && current.cutscene == 0 && current.bsp == 2) ||
-        (current.level == "levels\\halo1\\solo\\a50\\a50" && current.cutscene == 0 && current.bsp == 5 && (current.x < 55 && current.x != 0)) ||
+        (current.level == "levels\\halo1\\solo\\a50\\a50" && current.cutscene == 0 && current.bsp == 5 && current.x > 60) ||
         (current.level == "levels\\halo1\\solo\\b30\\b30" && current.cutscene == 0 && current.bsp == 1) ||
         (current.level == "levels\\halo1\\solo\\b40\\b40" && current.cutscene == 0 && current.bsp == 4) ||
         (current.level == "levels\\halo1\\solo\\c10\\c10" && current.cutscene == 0 && current.bsp == 3) ||
