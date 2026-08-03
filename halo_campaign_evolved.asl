@@ -34,6 +34,9 @@ state("HaloCampaignEvolved", "2026.06.26.1097863.1-Rel-i343-Meteorite-2606-CU2")
 }
 
 startup {
+    vars.end = false;
+    vars.forceIsLoading = false;
+
     vars.position = new float[3];
     vars.oldPosition = new float[3];
 
@@ -223,7 +226,6 @@ startup {
 
 init {
     version = modules.First().FileVersionInfo.ProductVersion;
-    // print("version: " + version);
 
     switch (version) {
         case "2026.07.25.1112544.4-Rel-i343-Meteorite-2607-CU3":
@@ -446,10 +448,31 @@ update {
         return false;
     }
 
+    if (
+        (current.level == "levels\\halo1\\solo\\a15\\a15" && current.cutscene == 0 && current.bsp == 3) ||
+        (current.level == "levels\\halo1\\solo\\a30\\a30" && current.cutscene == 0 && current.bsp == 2) ||
+        (current.level == "levels\\halo1\\solo\\a30\\a30" && current.cutscene == 0 && current.bsp == 2) ||
+        (current.level == "levels\\halo1\\solo\\a50\\a50" && current.cutscene == 0 && current.bsp == 5 && vars.position[0] > 60) ||
+        (current.level == "levels\\halo1\\solo\\b30\\b30" && current.cutscene == 0 && current.bsp == 1) ||
+        (current.level == "levels\\halo1\\solo\\b40\\b40" && current.cutscene == 0 && current.bsp == 4) ||
+        (current.level == "levels\\halo1\\solo\\c10\\c10" && current.cutscene == 0 && current.bsp == 3) ||
+        (current.level == "levels\\halo1\\solo\\c20\\c20" && current.cutscene == 0 && current.bsp == 8) ||
+        (current.level == "levels\\halo1\\solo\\c45\\c45" && current.cutscene == 0 && current.bsp == 3) ||
+        (current.level == "levels\\halo1\\solo\\d20\\d20" && current.cutscene == 0 && current.bsp == 4 && vars.position[0] < 60)
+    ) {
+        if (settings["il_mode"]) {
+            vars.end = true;
+        }   
+        vars.forceIsLoading = true;
+    }
+
     return true;
 }
 
 start {
+    vars.end = false;
+    vars.forceIsLoading = false;
+
     vars.dirtybsps.Clear();
     vars.dirtybsps.Add(0);
 
@@ -469,40 +492,15 @@ reset {
 }
 
 split {
-    print(
-        vars.position[0] + ", " +
-        vars.position[1] + ", " +
-        vars.position[2]
-    );
+    // setting a split flag for ILs in update, because we also need the end conditions in update to ensure we can force loading
+    // to prevent the timer from running during cutscenes briefly after a level end
 
-    if (settings["il_mode"]) {
-        if (current.level == "levels\\halo1\\solo\\a15\\a15" && current.cutscene == 0 && current.bsp == 3) {
-            return true;
-        }
-        if (current.level == "levels\\halo1\\solo\\a30\\a30" && current.cutscene == 0 && current.bsp == 2) {
-            return true;
-        }
-        if (current.level == "levels\\halo1\\solo\\a50\\a50" && current.cutscene == 0 && current.bsp == 5 && vars.position[0] > 60) {
-            return true;
-        }
-        if (current.level == "levels\\halo1\\solo\\b30\\b30" && current.cutscene == 0 && current.bsp == 1) {
-            return true;
-        }
-        if (current.level == "levels\\halo1\\solo\\b40\\b40" && current.cutscene == 0 && current.bsp == 4) {
-            return true;
-        }
-        if (current.level == "levels\\halo1\\solo\\c10\\c10" && current.cutscene == 0 && current.bsp == 3) {
-            return true;
-        }
-        if (current.level == "levels\\halo1\\solo\\c20\\c20" && current.cutscene == 0 && current.bsp == 8) {
-            return true;
-        }
-        if (current.level == "levels\\halo1\\solo\\c45\\c45" && current.cutscene == 0 && current.bsp == 3) {
-            return true;
-        }
-        if (current.level == "levels\\halo1\\solo\\d20\\d20" && current.cutscene == 0 && current.bsp == 4 && vars.position[0] < 60) {
-            return true;
-        }
+    if (vars.end) {
+        return true;
+    }
+
+    if (current.level == "levels\\halo1\\solo\\d40\\d40" && current.cutscene == 0 && current.bsp == 3) {
+        return true; // always split at end of Maw
     }
 
     if (settings["cutscene_split"] && current.cutscene == 0 && current.cutscene != old.cutscene && current.tick > 60) {
@@ -513,16 +511,13 @@ split {
         vars.dirtybsps.Add(current.bsp);
         return true;
     }
-    if (current.level == "levels\\halo1\\solo\\d40\\d40" && current.cutscene == 0 && current.bsp == 3) {
-        return true;
-    }
 
-    if (old.level != current.level) {
-        vars.dirtybsps.Clear();
+    if (current.level != old.level) {
+        vars.forceIsLoading = false;
         return true;
     }
 }
 
 isLoading {
-    return current.loadState != 4 || current.cutscene == 0 || current.paused == 1 || current.tick < 3;
+    return vars.forceIsLoading || current.loadState != 4 || current.cutscene == 0 || current.paused == 1 || current.tick <= 3;
 }
