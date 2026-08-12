@@ -25,6 +25,8 @@ state("HaloCampaignEvolved", "2026.07.25.1112544.4-Rel-i343-Meteorite-2607-CU3")
     float       x           : "HaloSimulation_tag_release.dll", 0x1294420, 0x2C;
     float       y           : "HaloSimulation_tag_release.dll", 0x1294420, 0x30;
     float       z           : "HaloSimulation_tag_release.dll", 0x1294420, 0x34;
+    float       fade        : 0xD550FA8, 0x11F8, 0x38, 0x0, 0x30, 0x390, 0x314;
+
 }
 
 state("HaloCampaignEvolved", "2026.06.26.1097863.1-Rel-i343-Meteorite-2606-CU2") {
@@ -40,8 +42,8 @@ state("HaloCampaignEvolved", "2026.06.26.1097863.1-Rel-i343-Meteorite-2606-CU2")
 }
 
 startup {
-    vars.end = false;
-    vars.forceIsLoading = false;
+    vars.totalTicks = 0;
+    vars.startTick = 0;
 
     vars.dirtybsps = new List<int>();
     vars.dirtybsps.Add(0); // add 0 to the list so that reverts to bsp 0 don't trigger a split
@@ -72,40 +74,21 @@ init
     version = modules.First().FileVersionInfo.ProductVersion;
 }
 
-update
-{
-    if (
-        (current.level == "levels\\halo1\\solo\\a15\\a15" && current.cutscene == 0 && current.bsp == 3) ||
-        (current.level == "levels\\halo1\\solo\\a30\\a30" && current.cutscene == 0 && current.bsp == 2) ||
-        (current.level == "levels\\halo1\\solo\\a30\\a30" && current.cutscene == 0 && current.bsp == 2) ||
-        (current.level == "levels\\halo1\\solo\\a50\\a50" && current.cutscene == 0 && current.bsp == 5 && current.x > 60) ||
-        (current.level == "levels\\halo1\\solo\\b30\\b30" && current.cutscene == 0 && current.bsp == 1) ||
-        (current.level == "levels\\halo1\\solo\\b40\\b40" && current.cutscene == 0 && current.bsp == 4) ||
-        (current.level == "levels\\halo1\\solo\\c10\\c10" && current.cutscene == 0 && current.bsp == 3) ||
-        (current.level == "levels\\halo1\\solo\\c20\\c20" && current.cutscene == 0 && current.bsp == 8) ||
-        (current.level == "levels\\halo1\\solo\\c45\\c45" && current.cutscene == 0 && current.bsp == 3) ||
-        (current.level == "levels\\halo1\\solo\\d20\\d20" && current.cutscene == 0 && current.bsp == 4 && (current.x < 55 && current.x != 0))
-    ) {
-        if (settings["il_mode"]) {
-            vars.end = true;
-        }   
-        vars.forceIsLoading = true;
-    }
-}
-
 start {
-    vars.end = false;
-    vars.forceIsLoading = false;
+    vars.totalTicks = 0;
+    vars.startTick = 3;
+    // for some reason, AotCR has 4 ticks pre cutscene skip; all others are only 3
+    if (current.level == "levels\\halo1\\solo\\b40") {
+        vars.startTick = 4;
+    }
+    if (current.level == "levels\\halo1\\solo\\extra\\e30\\e30") {
+        vars.startTick = 0;
+    }
 
     vars.dirtybsps.Clear();
     vars.dirtybsps.Add(0);
 
-    return current.loadState == 4       // wait until in game
-        && current.tick != old.tick     // wait until out of cutscene
-        && current.tick > 3             // wait until out of cutscene
-        && current.cutscene == 1        // wait until out of cutscene
-        && current.tick < 30            // only start in first half second
-        ;
+    return current.tick > 3 && current.fade < 1 && old.fade == 1;
 }
 
 reset {
@@ -116,11 +99,21 @@ reset {
 }
 
 split {
-    // setting a split flag for ILs in update, because we also need the end conditions in update to ensure we can force loading
-    // to prevent the timer from running during cutscenes briefly after a level end
-
-    if (vars.end) {
-        return true;
+    if (settings["il_mode"]) {
+        if (
+            (current.level == "levels\\halo1\\solo\\a15\\a15" && current.cutscene == 0 && current.bsp == 3) ||
+            (current.level == "levels\\halo1\\solo\\a30\\a30" && current.cutscene == 0 && current.bsp == 2) ||
+            (current.level == "levels\\halo1\\solo\\a30\\a30" && current.cutscene == 0 && current.bsp == 2) ||
+            (current.level == "levels\\halo1\\solo\\a50\\a50" && current.cutscene == 0 && current.bsp == 5 && current.x > 60) ||
+            (current.level == "levels\\halo1\\solo\\b30\\b30" && current.cutscene == 0 && current.bsp == 1) ||
+            (current.level == "levels\\halo1\\solo\\b40\\b40" && current.cutscene == 0 && current.bsp == 4) ||
+            (current.level == "levels\\halo1\\solo\\c10\\c10" && current.cutscene == 0 && current.bsp == 3) ||
+            (current.level == "levels\\halo1\\solo\\c20\\c20" && current.cutscene == 0 && current.bsp == 8) ||
+            (current.level == "levels\\halo1\\solo\\c45\\c45" && current.cutscene == 0 && current.bsp == 3) ||
+            (current.level == "levels\\halo1\\solo\\d20\\d20" && current.cutscene == 0 && current.bsp == 4 && (current.x < 55 && current.x != 0))
+        ) {
+            return true;
+        }
     }
 
     if (current.level == "levels\\halo1\\solo\\d40\\d40" && current.cutscene == 0 && current.bsp == 3) {
@@ -137,11 +130,34 @@ split {
     }
 
     if (current.level != old.level) {
-        vars.forceIsLoading = false;
+        if (current.level != "levels\\halo1\\solo\\extra\\e30\\e30") {
+            // add 3 ticks uncounted for each level except e30 (no start cutscene)
+            vars.startTick += 3;
+            // add 1 extra for AotCR
+            if (current.level == "levels\\halo1\\solo\\b40") {
+                vars.startTick += 1;
+            }
+        }
         return true;
     }
 }
 
 isLoading {
-    return vars.forceIsLoading || current.loadState != 4 || current.cutscene == 0 || current.paused == 1 || current.tick <= 3;
+    return current.loadState != 4 || current.cutscene == 0 || current.paused == 1 || current.tick <= 3;
+}
+
+update {
+    // add the difference every time to ensure we capture all ticks, and can carry over ticks from level to level
+    if (current.tick > old.tick)
+    {
+        var diff = current.tick - old.tick;
+
+        vars.totalTicks += diff;
+    }
+}
+
+gameTime {
+    print(vars.totalTicks.ToString());
+    print(vars.startTick.ToString());
+    return TimeSpan.FromTicks((vars.totalTicks - vars.startTick) * 10000000L / 60L);
 }
