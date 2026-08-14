@@ -44,7 +44,9 @@ state("HaloCampaignEvolved", "2026.06.26.1097863.1-Rel-i343-Meteorite-2606-CU2")
 
 startup {
     vars.totalTicks = 0;
-    vars.startTick = 0;
+    vars.levelTicks = 0;
+    vars.uncountedTicks = 0;
+    vars.splitting = false;
 
     vars.dirtybsps = new List<int>();
     vars.dirtybsps.Add(0); // add 0 to the list so that reverts to bsp 0 don't trigger a split
@@ -77,19 +79,22 @@ init
 
 start {
     vars.totalTicks = 0;
-    vars.startTick = 3;
+    vars.levelTicks = 0;
+    vars.uncountedTicks = 3;
+    vars.splitting = false;
+
     // for some reason, AotCR has 4 ticks pre cutscene skip; all others are only 3
     if (current.level == "levels\\halo1\\solo\\b40") {
-        vars.startTick = 4;
+        vars.uncountedTicks = 4;
     }
     if (current.level == "levels\\halo1\\solo\\extra\\e30\\e30") {
-        vars.startTick = 0;
+        vars.uncountedTicks = 0;
     }
 
     vars.dirtybsps.Clear();
     vars.dirtybsps.Add(0);
 
-    return current.tick > 3 && current.fade < 1 && old.fade == 1;
+    return current.tick > 4 && current.tick < 60;
 }
 
 reset {
@@ -131,14 +136,20 @@ split {
     }
 
     if (current.level != old.level) {
+        // add level ticks to the total counter (for previous levels)
+        vars.totalTicks += vars.levelTicks;
+
         if (current.level != "levels\\halo1\\solo\\extra\\e30\\e30") {
             // add 3 ticks uncounted for each level except e30 (no start cutscene)
-            vars.startTick += 3;
+            vars.uncountedTicks += 3;
             // add 1 extra for AotCR
             if (current.level == "levels\\halo1\\solo\\b40") {
-                vars.startTick += 1;
+                vars.uncountedTicks += 1;
             }
         }
+
+        vars.splitting = true;
+
         return true;
     }
 }
@@ -148,17 +159,18 @@ isLoading {
 }
 
 update {
-    // add the difference every time to ensure we capture all ticks, and can carry over ticks from level to level
-    if (current.tick > old.tick)
-    {
-        var diff = current.tick - old.tick;
-
-        vars.totalTicks += diff;
+    if (!vars.splitting) {
+        vars.levelTicks = current.tick;
+    } else {
+        vars.levelTicks = 0;
+        if (current.tick != old.tick) {
+            vars.splitting = false;
+        }
     }
 }
 
 gameTime {
     print(vars.totalTicks.ToString());
-    print(vars.startTick.ToString());
-    return TimeSpan.FromTicks((vars.totalTicks - vars.startTick) * 10000000L / 60L);
+    print(vars.levelTicks.ToString());
+    return TimeSpan.FromTicks((vars.totalTicks + vars.levelTicks - vars.uncountedTicks) * 10000000L / 60L);
 }
