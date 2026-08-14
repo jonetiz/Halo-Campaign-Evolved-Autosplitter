@@ -39,6 +39,7 @@ state("HaloCampaignEvolved", "2026.06.26.1097863.1-Rel-i343-Meteorite-2606-CU2")
     float       x           : "HaloSimulation_tag_release.dll", 0x1295400, 0x2C;
     float       y           : "HaloSimulation_tag_release.dll", 0x1295400, 0x30;
     float       z           : "HaloSimulation_tag_release.dll", 0x1295400, 0x34;
+    float       fade        : 0xD549FA8, 0x11F8, 0x38, 0x0, 0x30, 0x390, 0x314;
 }
 
 startup {
