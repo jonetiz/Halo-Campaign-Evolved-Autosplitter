@@ -15,17 +15,28 @@ d40     The Maw                         levels\halo1\solo\d40\d40
 Helper: always increases when in game, count is stuck to 3 in level beginning cutscences
 */
 
+state("HaloCampaignEvolved", "2026.08.11.1121610.2-Rel-i343-Meteorite-2607-CU4") {
+    int         loadState   : "HaloSimulation_tag_release.dll", 0xCA2824;
+    string32    level       : "HaloSimulation_tag_release.dll", 0xCA2F00;
+    int         tick        : "HaloSimulation_tag_release.dll", 0x12944C8, 0x0;
+    byte        cutscene    : "HaloSimulation_tag_release.dll", 0xA2B3B1;           // 0 = cutscene, 1 = gameplay; aligned to 0xA2C3C0
+    byte        paused      : "HaloSimulation_tag_release.dll", 0xD72C22;           // 0 = unpaused, 1 = paused; this is related to player input
+    int         bsp         : "HaloSimulation_tag_release.dll", 0x9A14E0;
+    float       x           : "HaloSimulation_tag_release.dll", 0x1294420, 0x2C;
+    float       y           : "HaloSimulation_tag_release.dll", 0x1294420, 0x30;
+    float       z           : "HaloSimulation_tag_release.dll", 0x1294420, 0x34;
+}
+
 state("HaloCampaignEvolved", "2026.07.25.1112544.4-Rel-i343-Meteorite-2607-CU3") {
     int         loadState   : "HaloSimulation_tag_release.dll", 0xCA2824;
     string32    level       : "HaloSimulation_tag_release.dll", 0xCA2F00;
     int         tick        : "HaloSimulation_tag_release.dll", 0x12944C8, 0x0;
     byte        cutscene    : "HaloSimulation_tag_release.dll", 0xA2B3B1;           // 0 = cutscene, 1 = gameplay; aligned to 0xA2C3C0
-    byte        paused      : 0xD3A5ED8, 0x618;                                     // 0 = unpaused, 1 = paused
+    byte        paused      : "HaloSimulation_tag_release.dll", 0xD72C22;           // 0 = unpaused, 1 = paused; this is related to player input
     int         bsp         : "HaloSimulation_tag_release.dll", 0x9A14E0;
     float       x           : "HaloSimulation_tag_release.dll", 0x1294420, 0x2C;
     float       y           : "HaloSimulation_tag_release.dll", 0x1294420, 0x30;
     float       z           : "HaloSimulation_tag_release.dll", 0x1294420, 0x34;
-    float       fade        : 0xD550FA8, 0x11F8, 0x38, 0x0, 0x30, 0x390, 0x314;
 
 }
 
@@ -34,12 +45,11 @@ state("HaloCampaignEvolved", "2026.06.26.1097863.1-Rel-i343-Meteorite-2606-CU2")
     string32    level       : "HaloSimulation_tag_release.dll", 0xCA3F20;
     int         tick        : "HaloSimulation_tag_release.dll", 0x12954A8, 0x0;
     byte        cutscene    : "HaloSimulation_tag_release.dll", 0xA2C3C1;           // 0 = cutscene, 1 = gameplay; aligned to 0xA2C3C0
-    byte        paused      : 0xD3ACED8, 0x618;                                     // 0 = unpaused, 1 = paused
+    byte        paused      : "HaloSimulation_tag_release.dll", 0xD73C32;           // 0 = unpaused, 1 = paused; this is related to player input
     int         bsp         : "HaloSimulation_tag_release.dll", 0x9A24D8;
     float       x           : "HaloSimulation_tag_release.dll", 0x1295400, 0x2C;
     float       y           : "HaloSimulation_tag_release.dll", 0x1295400, 0x30;
     float       z           : "HaloSimulation_tag_release.dll", 0x1295400, 0x34;
-    float       fade        : 0xD549FA8, 0x11F8, 0x38, 0x0, 0x30, 0x390, 0x314;
 }
 
 startup {
