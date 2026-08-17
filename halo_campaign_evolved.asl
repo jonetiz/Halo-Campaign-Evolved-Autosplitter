@@ -104,14 +104,14 @@ start {
     vars.dirtybsps.Clear();
     vars.dirtybsps.Add(0);
 
-    return current.tick > 4 && current.tick < 60;
+    return current.tick > 4 && current.tick < 30;
 }
 
 reset {
     if (settings["il_mode"]) {
         return current.tick < 3;
     }
-    return (current.level == "levels\\halo1\\solo\\a15\\a15" || current.level == "levels\\halo1\\solo\\e10\\e10") && current.tick < 3;
+    return (current.level == "levels\\halo1\\solo\\a15\\a15" || current.level == "levels\\halo1\\solo\\e10\\e10") && current.tick < 3 || current.loadState == 0;
 }
 
 split {
@@ -180,7 +180,5 @@ update {
 }
 
 gameTime {
-    print(vars.totalTicks.ToString());
-    print(vars.levelTicks.ToString());
     return TimeSpan.FromTicks((vars.totalTicks + vars.levelTicks - vars.uncountedTicks) * 10000000L / 60L);
 }
