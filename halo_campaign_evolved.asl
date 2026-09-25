@@ -140,7 +140,7 @@ split {
         return true;
     }
 
-    if (settings["bsp_split"] && current.bsp != old.bsp && current.bsp != 0 && vars.dirtybsps.Contains(current.bsp) == false) {
+    if (settings["bsp_split"] && current.bsp != old.bsp && current.bsp != -1 && vars.dirtybsps.Contains(current.bsp) == false) {
         vars.dirtybsps.Add(current.bsp);
         return true;
     }
@@ -179,6 +179,7 @@ update {
             vars.splitting = false;
         }
     }
+    print(current.bsp.ToString());
 }
 
 gameTime {
