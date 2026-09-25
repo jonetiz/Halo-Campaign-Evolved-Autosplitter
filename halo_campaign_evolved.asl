@@ -147,6 +147,7 @@ split {
 
     if (current.level != old.level) {
         vars.dirtybsps.Clear();
+        vars.dirtybsps.Add(0);
         // add level ticks to the total counter (for previous levels)
         vars.totalTicks += vars.levelTicks;
 
