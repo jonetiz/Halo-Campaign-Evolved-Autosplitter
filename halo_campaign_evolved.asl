@@ -148,6 +148,11 @@ split {
     if (current.level != old.level) {
         vars.dirtybsps.Clear();
         vars.dirtybsps.Add(0);
+
+        if (current.level == "levels\\halo1\\solo\\c45\\c45") {
+            vars.dirtybsps.Add(8);
+        }
+
         // add level ticks to the total counter (for previous levels)
         vars.totalTicks += vars.levelTicks;
 
@@ -179,7 +184,6 @@ update {
             vars.splitting = false;
         }
     }
-    print(current.bsp.ToString());
 }
 
 gameTime {
